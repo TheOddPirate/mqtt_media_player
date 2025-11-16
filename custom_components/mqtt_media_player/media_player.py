@@ -21,8 +21,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Setup entry point."""
     player = MQTTMediaPlayer(hass, config_entry)
     async_add_entities([player])
+    
     # Subscribe to the config topic to get media player configuration dynamically
-    CONFIG_TOPIC = f"homeassistant/media_player/{config_entry.title}/config"
+    # Use the discovery topic if available, otherwise construct a wildcard pattern
+    if "discovery_topic" in config_entry.data:
+        CONFIG_TOPIC = config_entry.data["discovery_topic"]
+    else:
+        # For manually added devices, use a wildcard to catch any path structure
+        device_id = config_entry.title
+        # This will match both homeassistant/media_player/my_player/config 
+        # and homeassistant/media_player/lnxlink/my_player/config
+        CONFIG_TOPIC = f"homeassistant/media_player/#"
+        
     await async_subscribe(hass, CONFIG_TOPIC, player.handle_config)
 
 
@@ -50,7 +60,27 @@ class MQTTMediaPlayer(MediaPlayerEntity):
 
     async def handle_config(self, message):
         """Handle incoming configuration from MQTT."""
-        config = json.loads(message.payload)
+        # Handle empty payload (device removal)
+        if not message.payload or message.payload.strip() == "":
+            _LOGGER.info("Received empty config payload - device removed")
+            return
+        
+        try:
+            config = json.loads(message.payload)
+        except json.JSONDecodeError as e:
+            _LOGGER.error(f"Failed to parse config JSON: {e}")
+            return
+        
+        # Extract device ID from the topic to match against our config entry
+        # Topic format: homeassistant/media_player/[optional_prefix/]device_id/config
+        topic_parts = message.topic.split('/')
+        topic_device_id = topic_parts[-2]  # Get the part before '/config'
+        
+        # Only process if this message is for our device
+        if topic_device_id != self._config_entry.title:
+            _LOGGER.debug(f"Ignoring config for different device: {topic_device_id}")
+            return
+            
         _LOGGER.info(f"Received configuration: {config}")
         self._name = config.get("name")
 
