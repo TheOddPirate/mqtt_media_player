@@ -51,7 +51,7 @@ Publish a JSON configuration message to `homeassistant/media_player/{device_id}/
   "command_previous_topic": "myplayer/previous",
   "command_previous_payload": "previous",
   "command_playmedia_topic": "myplayer/playmedia"
-  "command_seek_position_topic": "myplayer/seek
+  "command_seek_position_topic": "myplayer/seek"
 }
 ```
 
