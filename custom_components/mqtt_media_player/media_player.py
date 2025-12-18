@@ -100,7 +100,7 @@ class MQTTMediaPlayer(MediaPlayerEntity):
             "previous_topic": config.get("command_previous_topic"),
             "previous_payload": config.get("command_previous_payload", "Previous"),
             "playmedia_topic": config.get("command_playmedia_topic"),
-            "seek_topic": config.get("command_seek_position_topic"),
+            "media_seek": config.get("command_seek_position_topic"),
         }
 
         for subscription in self._subscribed:
@@ -265,9 +265,8 @@ class MQTTMediaPlayer(MediaPlayerEntity):
         await async_publish(self._hass, self._cmd_topics["volumeset_topic"], self._volume)
 
     async def async_media_seek(self, position):
-        await async_publish(self._hass, self._cmd_topics["seek_topic"], round(float(position), 3))
+        await async_publish(self._hass, self._cmd_topics["media_seek"], position)
 
-        await async_publish(self._hass, topic, payload)
 
     async def async_play_media(self, media_type, media_id, **kwargs):
         if media_source.is_media_source_id(media_id):
