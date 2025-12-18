@@ -51,6 +51,7 @@ Publish a JSON configuration message to `homeassistant/media_player/{device_id}/
   "command_previous_topic": "myplayer/previous",
   "command_previous_payload": "previous",
   "command_playmedia_topic": "myplayer/playmedia"
+  "command_seek_position_topic": "myplayer/seek
 }
 ```
 
@@ -80,6 +81,7 @@ Publish a JSON configuration message to `homeassistant/media_player/{device_id}/
 | command_next_topic       | Go to next track                                         | myplayer/next       | Next      |
 | command_previous_topic   | Go to previous track                                     | myplayer/previous   | Previous  |
 | command_playmedia_topic  | Support TTS, playing media, etc...                       | myplayer/playmedia  |           |
+| command_seek_position_topic  | Seek                                                 | myplayer/seek       |           |
 
 ### State Values
 
